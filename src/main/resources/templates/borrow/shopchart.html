@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<!--字体图标-->
+<link href="../../javaex/pc/css/icomoon.css" rel="stylesheet" />
+<!--动画-->
+<link href="../../javaex/pc/css/animate.css" rel="stylesheet" />
+<!--骨架样式-->
+<link href="../../javaex/pc/css/common.css" rel="stylesheet" />
+<!--皮肤（缇娜）-->
+<link href="../../javaex/pc/css/skin/tina.css" rel="stylesheet" />
+<!--jquery，不可修改版本-->
+<script src="../../javaex/pc/lib/jquery-1.7.2.min.js"></script>
+<!--全局动态修改-->
+<script src="../../javaex/pc/js/common.js"></script>
+<!--核心组件-->
+<script src="../../javaex/pc/js/javaex.min.js"></script>
+<!--表单验证-->
+<script src="../../javaex/pc/js/javaex-formVerify.js"></script>
+<!-- 加入layer弹出层 -->
+<script src="../../javaex/layer/layer.js"></script>
+<title>图书归还</title>
+</head>
+<style>
+    
+</style>
+
+<body>
+    <!--全部主体内容-->
+<div class="list-content">
+	<!--块元素-->
+	<div class="block">
+		<!--修饰块元素名称-->
+		<div class="banner">
+			<p class="tab fixed">购书记录</p>
+		</div>
+	
+		<!--正文内容-->
+		<div class="main">
+			<form id="form">
+				<!--文本框-->
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">用户名</p></div>
+					<div class="right">
+						<input type="text" class="text" name="username" id="username" readonly />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">昵称</p></div>
+					<div class="right">
+						<input type="text" class="text" name="nickname" id="nickname" readonly />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">身份</p></div>
+					<div class="right">
+						<input type="text" class="text" name="identity" id="identity" readonly />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">剩余积分</p></div>
+					<div class="right">
+						<input type="text" class="text" name="size" id="size" readonly />
+					</div>
+				</div>
+
+				<div class="left"><span class="required">*</span><p class="subtitle">购物车列表</p></div>
+				<!-- 已借阅列表 -->
+				<table id="table" class="table color2">
+					<thead>
+					<tr align="center">
+						<th>序号</th>
+						<th>订单编号</th>
+						<th>书名</th>
+						<th>封面图</th>
+						<th>作者</th>
+						<th>编号</th>
+						<th>页数</th>
+						<th>所需积分</th>
+						<th>出版社</th>
+						<th>分类</th>
+						<th>购买数量</th>
+						<th>操作</th>
+					</tr>
+					</thead>
+					<tbody id="tbody">
+					</tbody>
+				</table>
+				
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">总计积分</p></div>
+					<div class="right">
+						<input type="text" class="text" name="count" id="count" readonly />
+					</div>
+				</div>
+				
+				<div class="unit clear" style="width: 800px;">
+					<div style="text-align: center;">
+						<input type="button" id="return" class="button no" value="返回" />
+						<input type="button" id="save" class="button yes" value="购买" />
+					</div>
+				</div>
+
+				<!--提交按钮-->
+				<!--<div class="unit clear" style="width: 800px;">-->
+					<!--<div style="text-align: center;">-->
+						<!--&lt;!&ndash;表单提交时，必须是input元素，并指定type类型为button，否则ajax提交时，会返回error回调函数&ndash;&gt;-->
+						<!--<input type="button" id="return" class="button no" value="返回" />-->
+						<!--<input type="button" id="save" class="button yes" value="保存" />-->
+					<!--</div>-->
+				<!--</div>-->
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	//监听点击返回按钮事件
+	$("#return").click(function() {
+	    // alert("返回");
+	    window.location.href = "/borrow/book-search";
+	});
+	
+	$(document).ready(function(){
+	    // 1. 先查询用户信息
+	    var user = null;  // 确保 user 在函数作用域内
+	    $.get("/user/currUser", function(data){
+	        var user = data.data;
+	        // 渲染用户数据
+	        $("#username").val(user.username);
+	        $("#nickname").val(user.nickname);
+	        $("#identity").val(user.ident);
+	        $("#size").val(user.size);
+
+	        // 2. 查询用户借阅信息, 并渲染借阅列表
+	        $.get("/borrow/addtoshopchart", {"userId": user.id}, function(result){
+	            var text  = "";
+	            var backArray = result.data;
+	            // 渲染用户数据
+	            $.each(backArray, function(index, value){
+	                console.log(value);
+	                var num = index + 1;
+	                var purchaseNum= value.ret-2;
+	                text += "<tr align='center'><td>" + num + "</td><td>" + value.id + "</td><td>" + value.name + "</td><td><img src='/photo/view?filename=" + value.pic + "'/></td><td>" + value.author + "</td><td>" + value.isbn + "</td>" +
+	                        "<td>" + value.pages + "</td><td>" + value.price + "</td><td>" + value.publish + "</td><td>" + value.type + "</td>" +
+	                        "<td>" + purchaseNum + "</td><td>" +
+	                        "<button onclick='retBook(" + user.id + "," + value.id + ")'>删除</td></tr>";
+	            });
+	            $("#tbody").html(text);
+
+	            // 3. 查询并更新总计金额
+	            $.get("/borrow/check", {"userId": user.id}, function(result) {
+	                var totalAmount = result; // 直接获取总金额
+	                $("#count").val(totalAmount);  // 更新总计金额
+	            });
+	        });
+	    });
+	});
+
+	$("#save").click(function() {
+	    var totalAmount = $("#count").val(); // 获取总金额（所需积分）
+	    var userPoints = $("#size").val();   // 获取用户剩余积分
+
+	    // 检查值是否为空或者无效
+	    if (!totalAmount || !userPoints || isNaN(totalAmount) || isNaN(userPoints)) {
+	        javaex.optTip({
+	            content: "请输入有效的金额和积分!",
+	            type: "error"
+	        });
+	        return false;
+	    }
+
+	    console.log("总金额: " + totalAmount);
+	    console.log("剩余积分: " + userPoints);
+
+	    // 比较所需积分和剩余积分
+	    if (parseInt(totalAmount) > parseInt(userPoints)) {
+	        // 如果所需积分大于剩余积分，提醒用户积分不足
+	        javaex.optTip({
+	            content: "积分不足，无法购买！",
+	            type: "error"
+	        });
+	        return false;
+	    } else {
+	        var userId;
+	        $.get("/user/currUser", function(data) {
+	            var user = data.data;
+	            userId = user.id;
+
+	            // 查找到用户，进行借阅
+	            if (userId > 0) {
+	            	totalAmount = parseInt(totalAmount);
+	            	$.post("/borrow/buy", {
+	            	    "userId": user.id,  // 确保这里传递了正确的 userId
+	            	    "totalAmount": totalAmount
+	            	}, function(result) {
+	            	    console.log("购买请求结果：", result);
+
+	            	    // 如果购买成功
+	            	    if (result.code === 200) {
+	            	        // 显示成功提示
+	            	        javaex.message({
+	            	            content: "购买成功",
+	            	            type: "success"
+	            	        });
+	            	        
+	            	        // 延时跳转到 /borrow/back 页面
+	            	        setTimeout(function() {
+	            	            window.location.href = "/borrow/back";  // 跳转到归还页面
+	            	        }, 2000);  // 2000 毫秒 = 2 秒延时
+	            	    } else {
+	            	        // 如果购买失败，显示错误提示
+	            	        javaex.message({
+	            	            content: result.msg || "购买失败，请重试！",
+	            	            type: "error"
+	            	        });
+	            	    }
+	            	});
+
+	            } else {
+	                // 找不到用户，提示用户登录
+	                javaex.message({
+	                    content: "登录信息已失效, 请登录后购买",
+	                    type: "error"
+	                });
+	            }
+	        });
+	    }
+	});
+
+
+	
+	// 归还操作
+	function retBook(userId, orderId) {
+	    $.ajaxSettings.async = false;
+	    $.post("/borrow/deletefromchart", {"id": orderId}, function(result) {
+	        var code = result.code;
+	        if (code == 200) {
+	            alert("删除成功!");
+	        }
+	    }, "json");
+	    $.ajaxSettings.async = true;
+	}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta charset="utf-8">
+	<!--字体图标-->
+	<link href="../../javaex/pc/css/icomoon.css" rel="stylesheet" />
+	<!--动画-->
+	<link href="../../javaex/pc/css/animate.css" rel="stylesheet" />
+	<!--骨架样式-->
+	<link href="../../javaex/pc/css/common.css" rel="stylesheet" />
+	<!--皮肤（缇娜）-->
+	<link href="../../javaex/pc/css/skin/tina.css" rel="stylesheet" />
+	<!--jquery，不可修改版本-->
+	<script src="../../javaex/pc/lib/jquery-1.7.2.min.js"></script>
+	<!--全局动态修改-->
+	<script src="../../javaex/pc/js/common.js"></script>
+	<!--核心组件-->
+	<script src="../../javaex/pc/js/javaex.min.js"></script>
+	<!--表单验证-->
+	<script src="../../javaex/pc/js/javaex-formVerify.js"></script>
+	<title>后台管理</title>
+</head>
+<style>
+
+</style>
+
+<body>
+<!--全部主体内容-->
+<div class="list-content">
+	<!--块元素-->
+	<div class="block">
+		<!--修饰块元素名称-->
+		<div class="banner">
+			<p class="tab fixed">编辑图书</p>
+		</div>
+
+		<!--正文内容-->
+		<div class="main">
+			<form id="book-edit-form">
+				<input type="hidden" name="id" id="edit-id"/>
+				<input type="hidden" name="pic" id="edit-pic"/>
+				<!--文本框-->
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">书名</p></div>
+					<div class="right">
+						<input type="text" name="name" id="bookName" class="text" placeholder="请输入图书名称" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">编号</p></div>
+					<div class="right">
+						<input type="text" id="isbn" name="isbn" class="text" placeholder="请输入ISBN编号" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">封面图</p></div>
+					<div class="right">
+						<img id="view-photo" src="/photo/view?filename=20210906/1630917146973.png" />
+						<input type="file" id="edit-photo" class="text"  placeholder="上传封面图" onchange="upload()" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">作者</p></div>
+					<div class="right">
+						<input type="text" id="author" name="author" class="text" placeholder="请填写作者" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><p class="subtitle">图书分类</p></div>
+					<div class="right">
+						<input type="text" id="edit-type" name="type" class="text" placeholder="请填写图书分类" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">页数</p></div>
+					<div class="right">
+						<input type="text" id="pages" name="pages" class="text" placeholder="请填写图书页数" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">积分</p></div>
+					<div class="right">
+						<input type="text" id="price" name="price" class="text" placeholder="请填写定价" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><p class="subtitle">出版时间</p></div>
+					<div class="right">
+						<input type="text" id="publishTime" class="ex-date" style="width: 180px;" value="" readonly/>
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">出版社</p></div>
+					<div class="right">
+						<input type="text" id="publish" name="publish" class="text" placeholder="请填写出版社" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">库存数量</p></div>
+					<div class="right">
+						<input type="text" id="size" class="text" name="size" placeholder="请填写库存数量" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">翻译</p></div>
+					<div class="right">
+						<input type="text" id="translate" class="text" name="translate" placeholder="请填写是否有翻译" />
+					</div>
+				</div>
+
+				<!--提交按钮-->
+				<div class="unit clear" style="width: 800px;">
+					<div style="text-align: center;">
+						<!--表单提交时，必须是input元素，并指定type类型为button，否则ajax提交时，会返回error回调函数-->
+						<input type="button" id="return" class="button no" value="返回" />
+						<input type="button" id="save" class="button yes" value="保存" />
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+    // 页面一加载赋值表单
+    $(document).ready(function(){
+        // 地址栏参数
+        var id = getQueryVariable("id");
+        // get读取参数
+        $.get("/book/detail",{"id": id}, function(data){
+            var data = data.data;
+            $("#edit-id").val(data.id);
+            $("#bookName").val(data.name);
+            $("#isbn").val(data.isbn);
+            $("#author").val(data.author);
+            $("#pages").val(data.pages);
+            $("#price").val(data.price);
+            $("#publishTime").val(data.publishTime);
+            $("#publish").val(data.publish);
+            $("#size").val(data.size);
+            $("#translate").val(data.translate);
+            $("#edit-type").val(data.type);
+            $("#edit-pic").val(data.pic);
+            $("#view-photo").attr("src","/photo/view?filename="+data.pic);
+        });
+
+    });
+
+    javaex.date({
+        id : "publishTime",	// 承载日期组件的id
+        isTime : true,
+        date : "2021-09-05 01:01:01",	// 选择的日期
+        // 重新选择日期之后返回一个时间对象
+        callback : function(rtn) {
+        }
+    });
+
+    // 获取地址栏参数
+    function getQueryVariable(variable){
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return false;
+    }
+
+    // 监听点击保存按钮事件
+    $("#save").click(function() {
+        // 获取输入内容
+        var bookName = $("#bookName").val();
+        var isbn = $("#isbn").val();
+        var author = $("#author").val();
+        var pic=$("#edit-pic").val();
+        // 校验文本
+        if (bookName == "") {
+            javaex.optTip({
+                content : "图书名称不能为空!",
+                type : "error"
+            });
+            return false;
+        }
+        if (isbn == "") {
+            javaex.optTip({
+                content : "ISBN图书编码不能为空!",
+                type : "error"
+            });
+            return false;
+        }
+        if (author == "") {
+            javaex.optTip({
+                content : "图书作者不能为空!",
+                type : "error"
+            });
+
+            return false;
+        }
+		if(pic==""){
+            javaex.optTip({
+                content : "请上传封面图!",
+                type : "error"
+            });
+            return false;
+		}
+		var data=$("#book-edit-form").serialize();
+        console.log(data);
+        $.ajax({
+            //请求方式
+            type : "POST",
+            //请求地址
+            url : "/book/edit",
+            //数据，json字符串
+            data : data,
+			dataType:'json',
+            //请求成功
+            success : function(result) {
+                // 获取集合属性
+                var code = result.code;
+                if (code == 200) {
+                        javaex.message({
+                            content : "编辑图书成功",
+                            type : "success"
+                        });
+                        // 修改成功, 跳转页面
+                        setTimeout(function(){window.location.href="/book/list";},1500)
+					}else{
+                    javaex.message({
+                        content : result.msg,
+                        type : "error"
+                    });
+				}
+            },
+            //请求失败，包含具体的错误信息
+            error : function(e){
+                alert("网络错误")
+            }
+        });
+
+    });
+
+    // 监听点击返回按钮事件
+    $("#return").click(function() {
+        window.location.href = "/book/list";
+    });
+
+    function upload(){
+        var formData = new FormData();
+        formData.append('photo',document.getElementById('edit-photo').files[0]);
+        $.ajax({
+            url:'/upload/upload_photo',
+            contentType:false,
+            processData:false,
+            data:formData,
+            type:'POST',
+            success:function(data){
+                if(data.type == "success"){
+                    alert("上传成功");
+                    $("#edit-pic").val(data.data);
+                    $("#view-photo").attr("src","../photo/view?filename="+data.data);
+                }else{
+                    data = $.parseJSON(data);
+                    alert("上传失败");
+                }
+            },
+            error:function(data){
+                alert('网络错误!');
+            }
+        });
+    }
+</script>
+</body>
+</html>

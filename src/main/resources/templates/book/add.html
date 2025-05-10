@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<!--字体图标-->
+<link href="../../javaex/pc/css/icomoon.css" rel="stylesheet" />
+<!--动画-->
+<link href="../../javaex/pc/css/animate.css" rel="stylesheet" />
+<!--骨架样式-->
+<link href="../../javaex/pc/css/common.css" rel="stylesheet" />
+<!--皮肤（缇娜）-->
+<link href="../../javaex/pc/css/skin/tina.css" rel="stylesheet" />
+<!--jquery，不可修改版本-->
+<script src="../../javaex/pc/lib/jquery-1.7.2.min.js"></script>
+<!--全局动态修改-->
+<script src="../../javaex/pc/js/common.js"></script>
+<!--核心组件-->
+<script src="../../javaex/pc/js/javaex.min.js"></script>
+<!--表单验证-->
+<script src="../../javaex/pc/js/javaex-formVerify.js"></script>
+<title>后台管理</title>
+</head>
+<style>
+    
+</style>
+
+<body>
+    <!--全部主体内容-->
+<div class="list-content">
+	<!--块元素-->
+	<div class="block">
+		<!--修饰块元素名称-->
+		<div class="banner">
+			<p class="tab fixed">添加图书</p>
+		</div>
+	
+		<!--正文内容-->
+		<div class="main">
+			<form id="book-form">
+				<input type="hidden" name="pic" id="pic"/>
+				<!--文本框-->
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">图书名称</p></div>
+					<div class="right">
+						<input type="text" name="name" id="bookName" class="text" placeholder="请输入图书名称" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">编号</p></div>
+					<div class="right">
+						<input type="text" id="isbn" name="isbn" class="text" placeholder="请输入编号" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">封面图</p></div>
+					<div class="right">
+						<img id="view-photo" src="/photo/view?filename=20210906/1630917146973.png" />
+						<input type="file" id="add-pic" class="text"  placeholder="上传封面图" onchange="upload()" />
+					</div>
+				</div>
+				<div class="unit clear">
+					<div class="left"><span class="required">*</span><p class="subtitle">作者</p></div>
+					<div class="right">
+						<input type="text" id="author" name="author" class="text" placeholder="请填写作者" />
+					</div>
+				</div>
+
+				<!--下拉选择框-->
+				<div class="unit clear">
+					<div class="left"><p class="subtitle">图书分类</p></div>
+					<div class="right">
+						<input type="text" id="type" name="type" class="text" placeholder="请填写图书分类" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">页数</p></div>
+					<div class="right">
+						<input type="text" id="pages" name="pages" class="text" placeholder="请填写图书页数" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">所需积分</p></div>
+					<div class="right">
+						<input type="text" id="price" name="price" class="text" placeholder="请填写所需积分" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><p class="subtitle">出版时间</p></div>
+					<div class="right">
+						<input type="text" id="publishTime" name="publishTime" class="ex-date" style="width: 180px;" value="" readonly/>
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">出版社</p></div>
+					<div class="right">
+						<input type="text" id="publish" name="publish" class="text" placeholder="请填写出版社" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">库存数量</p></div>
+					<div class="right">
+						<input type="text" id="count" class="text" name="size" placeholder="请填写库存数量" />
+					</div>
+				</div>
+
+				<div class="unit clear">
+					<div class="left"><span class="required"></span><p class="subtitle">翻译</p></div>
+					<div class="right">
+						<input type="text" id="translate" class="text" name="translate" placeholder="请填写是否有翻译" />
+					</div>
+				</div>
+
+
+				<!--提交按钮-->
+				<div class="unit clear" style="width: 800px;">
+					<div style="text-align: center;">
+						<!--表单提交时，必须是input元素，并指定type类型为button，否则ajax提交时，会返回error回调函数-->
+						<input type="button" id="return" class="button no" value="返回" />
+						<input type="button" id="save" class="button yes" value="保存" />
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	javaex.select({
+		id : "select",
+		isSearch : true,
+		maxNum: 5
+	});
+	
+	javaex.date({
+		id : "publishTime",	// 承载日期组件的id
+		isTime : true,
+		date : "2021-09-06 01:01:01",	// 选择的日期
+		// 重新选择日期之后返回一个时间对象
+		callback : function(rtn) {
+		}
+	});
+	
+	// 监听点击保存按钮事件
+	$("#save").click(function() {
+		// 获取输入内容
+		var bookName = $("#bookName").val();
+		var isbn = $("#isbn").val();
+		var author = $("#author").val();
+		var type=$("#type").val();
+        var pic=$("#pic").val();
+        // 校验文本
+		if (bookName == "") {
+            javaex.optTip({
+                content : "图书名称不能为空!",
+                type : "error"
+            });
+
+            return false;
+		}
+
+        if (isbn == "") {
+            javaex.optTip({
+                content : "ISBN图书编码不能为空!",
+                type : "error"
+            });
+
+            return false;
+        }
+
+        if (author == "") {
+            javaex.optTip({
+                content : "图书作者不能为空!",
+                type : "error"
+            });
+
+            return false;
+        }
+
+        if (type == "") {
+            javaex.optTip({
+                content : "图书分类不能为空!",
+                type : "error"
+            });
+            return false;
+        }
+        if(pic==""){
+            javaex.optTip({
+                content : "请上传封面图!",
+                type : "error"
+            });
+            return false;
+		}
+		var data=$("#book-form").serialize();
+        $.ajax({
+            //请求方式
+            type : "POST",
+            //请求地址
+            url : "/book/add",
+            //数据，json字符串
+            data : data,
+			dataType:'json',
+            //请求成功
+            success : function(result) {
+               	var code=result.code;
+                if (code == 200) {
+                    javaex.message({
+                        content : "添加成功",
+                        type : "success"
+                    });
+                    // 跳转至列表
+                    setTimeout(function(){ window.location.href="/book/list";},1500)
+				}else{
+                    javaex.message({
+                        content : result.msg,
+                        type : "error"
+                    });
+				}
+            },
+            //请求失败，包含具体的错误信息
+            error : function(e){
+              alert("网络错误");
+            }
+        });
+
+	});
+
+	// 监听点击返回按钮事件
+	$("#return").click(function() {
+		 window.location.href = "/book/list";
+	});
+
+	function upload(){
+        //formdata
+        var formData = new FormData();
+        formData.append('photo',document.getElementById('add-pic').files[0]);
+        $.ajax({
+            url:'/upload/upload_photo',
+            contentType:false,
+            processData:false,
+            data:formData,
+            type:'POST',
+            success:function(data){
+                if(data.type == "success"){
+					alert("上传成功");
+					$("#pic").val(data.data);
+					$("#view-photo").attr("src","../photo/view?filename="+data.data);
+                }else{
+                    data = $.parseJSON(data);
+                   alert("上传失败");
+                }
+            },
+            error:function(data){
+                alert('网络错误!');
+            }
+        });
+	}
+</script>
+</body>
+</html>
